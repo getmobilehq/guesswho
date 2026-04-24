@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  /* Midnight Gold palette */
+  --color-bg: #0D0D2B;
+  --color-surface: #161642;
+  --color-elevated: #1F1F55;
+  --color-gold: #F4C753;
+  --color-gold-deep: #C9A227;
+  --color-ivory: #FDFAF0;
+  --color-muted: #9D9BB8;
+  --color-border: #2A2A5E;
+  --color-green: #7DD181;
+  --color-red: #E07A8B;
+
+  --font-head: "Lora", Georgia, serif;
+  --font-ui: "Didact Gothic", system-ui, sans-serif;
+
+  --radius: 4px;
+}
+
+@layer base {
+  html,
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ivory);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-image:
+      radial-gradient(ellipse at top, color-mix(in srgb, var(--color-elevated) 33%, transparent) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom right, color-mix(in srgb, var(--color-gold-deep) 13%, transparent) 0%, transparent 60%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    overscroll-behavior-y: none;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-head);
+  }
+
+  input, textarea, select {
+    font-size: 16px; /* prevents iOS zoom on focus */
+  }
+}
+
+@keyframes gw-spin { to { transform: rotate(360deg); } }
+@keyframes gw-pop {
+  0%   { transform: translateX(-50%) scale(0.5); opacity: 0; }
+  100% { transform: translateX(-50%) scale(1);   opacity: 1; }
+}
+@keyframes gw-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
