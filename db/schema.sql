@@ -1,7 +1,11 @@
 -- Guess Who — database schema
 -- Run this in Supabase SQL Editor on a fresh project.
 
-create type if not exists session_status as enum ('lobby', 'live', 'final');
+do $$ begin
+  if not exists (select 1 from pg_type where typname = 'session_status') then
+    create type session_status as enum ('lobby', 'live', 'final');
+  end if;
+end $$;
 
 create table if not exists sessions (
   code               text primary key check (length(code) between 3 and 12),
@@ -53,8 +57,18 @@ create table if not exists guesses (
 );
 
 -- Realtime publications for tables clients subscribe to.
-alter publication supabase_realtime add table sessions;
-alter publication supabase_realtime add table players;
-alter publication supabase_realtime add table answers;
-alter publication supabase_realtime add table guesses;
-alter publication supabase_realtime add table cards;
+-- Wrapped to be idempotent — Postgres errors if the table is already in the
+-- publication, so we check pg_publication_tables first.
+do $$
+declare
+  t text;
+begin
+  foreach t in array array['sessions', 'players', 'answers', 'cards', 'guesses'] loop
+    if not exists (
+      select 1 from pg_publication_tables
+      where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
+    ) then
+      execute format('alter publication supabase_realtime add table public.%I', t);
+    end if;
+  end loop;
+end $$;

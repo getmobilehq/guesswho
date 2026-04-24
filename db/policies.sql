@@ -11,6 +11,13 @@ alter table cards    enable row level security;
 alter table guesses  enable row level security;
 
 -- Allow anon + authenticated to read everything. Writes go through service role.
+-- Drop first so this script is idempotent.
+drop policy if exists "read sessions" on sessions;
+drop policy if exists "read players"  on players;
+drop policy if exists "read answers"  on answers;
+drop policy if exists "read cards"    on cards;
+drop policy if exists "read guesses"  on guesses;
+
 create policy "read sessions" on sessions for select using (true);
 create policy "read players"  on players  for select using (true);
 create policy "read answers"  on answers  for select using (true);
