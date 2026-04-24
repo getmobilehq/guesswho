@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -13,6 +13,7 @@ import { StatCard } from "@/components/game/StatCard";
 import { JoinQR } from "@/components/game/JoinQR";
 
 import { localToken } from "@/lib/hooks/useLocalToken";
+import { usePlayers } from "@/lib/hooks/usePlayers";
 import type { PublicSession } from "@/lib/supabase/types";
 
 export default function LobbyView({
@@ -23,13 +24,19 @@ export default function LobbyView({
   appUrl: string;
 }) {
   const router = useRouter();
+  const { players, submittedCount, status } = usePlayers(session.code);
   const [copied, setCopied] = useState(false);
   const [confirmExit, setConfirmExit] = useState(false);
 
-  // Phase 1 stub — Phase 2 wires these to realtime.
-  const players: { id: string; name: string; submitted: boolean }[] = [];
-  const submittedCount = 0;
-  const canStart = false;
+  // Routing transitions when the host moves the game forward in another tab,
+  // or returns from the live screen back here.
+  useEffect(() => {
+    if (status === "live") router.replace(`/host/${session.code}/live`);
+    else if (status === "final") router.replace(`/host/${session.code}/final`);
+  }, [status, session.code, router]);
+
+  const canStart = submittedCount >= 2;
+  const totalCards = submittedCount * 3;
 
   const copyCode = async () => {
     try {
@@ -44,6 +51,12 @@ export default function LobbyView({
   const exit = () => {
     localToken.clear("host", session.code);
     router.replace("/");
+  };
+
+  const start = () => {
+    // Phase 3 wires the action + live screen; this is a placeholder so the
+    // button isn't a dead end during Phase 2 testing.
+    toast.info("Live screen comes online next — hold tight.");
   };
 
   return (
@@ -73,8 +86,9 @@ export default function LobbyView({
         <StatCard
           label="Answers submitted"
           value={`${submittedCount}/${players.length}`}
+          highlight={canStart && submittedCount === players.length}
         />
-        <StatCard label="Cards in deck" value={submittedCount * 3} />
+        <StatCard label="Cards in deck" value={totalCards} />
       </div>
 
       <div className="flex flex-col items-center gap-3 mb-10">
@@ -82,14 +96,43 @@ export default function LobbyView({
       </div>
 
       <Section label="Roster">
-        <div className="px-6 py-7 text-center text-muted text-sm border border-dashed border-border rounded-[var(--radius)]">
-          Waiting for players to join…
-        </div>
+        {players.length === 0 ? (
+          <div className="px-6 py-7 text-center text-muted text-sm border border-dashed border-border rounded-[var(--radius)]">
+            Waiting for players to join…
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {players.map((p) => (
+              <div
+                key={p.id}
+                className={
+                  "px-3.5 py-2 rounded-full text-sm flex items-center gap-2 border " +
+                  (p.submitted
+                    ? "bg-gold/15 border-gold/55 text-ivory"
+                    : "bg-surface border-border text-ivory")
+                }
+              >
+                <span className={p.submitted ? "text-gold" : "text-muted"}>
+                  {p.submitted ? "●" : "○"}
+                </span>
+                {p.name}
+              </div>
+            ))}
+          </div>
+        )}
       </Section>
 
       <div className="sticky bottom-0 -mx-5 px-5 pt-6 pb-3 bg-gradient-to-t from-bg via-bg/95 to-transparent">
-        <Button variant="primary" size="lg" full disabled={!canStart}>
-          Waiting for at least 2 submissions
+        <Button
+          variant="primary"
+          size="lg"
+          full
+          disabled={!canStart}
+          onClick={canStart ? start : undefined}
+        >
+          {canStart
+            ? `Start game · ${totalCards} cards`
+            : "Waiting for at least 2 submissions"}
         </Button>
       </div>
 

@@ -43,7 +43,21 @@ export const CreateSessionInput = z.object({
   questions: Questions,
 });
 
+export const JoinSessionInput = z.object({
+  code: SessionCode,
+  name: PlayerName,
+});
+
+export const SubmitAnswersInput = z.object({
+  code: SessionCode,
+  playerId: z.string().uuid(),
+  playerToken: Token,
+  answers: z.tuple([Answer, Answer, Answer]),
+});
+
 export type CreateSessionInputType = z.infer<typeof CreateSessionInput>;
+export type JoinSessionInputType = z.infer<typeof JoinSessionInput>;
+export type SubmitAnswersInputType = z.infer<typeof SubmitAnswersInput>;
 
 export const friendlyZodError = (err: z.ZodError): string => {
   const first = err.issues[0];

@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-type Kind = "host" | "player";
+// "host" / "player" store auth tokens.
+// "player-id" stores the player's UUID alongside the token so action calls
+// don't have to round-trip to look it up.
+type Kind = "host" | "player" | "player-id";
 const key = (kind: Kind, code: string) => `gw:${kind}:${code}`;
 
 export const localToken = {
