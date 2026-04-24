@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Page } from "@/components/brand/Page";
 import { BackBar } from "@/components/brand/BackBar";
-import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
 import { StatCard } from "@/components/game/StatCard";
@@ -14,6 +13,7 @@ import { JoinQR } from "@/components/game/JoinQR";
 
 import { localToken } from "@/lib/hooks/useLocalToken";
 import { usePlayers } from "@/lib/hooks/usePlayers";
+import { startGame } from "@/lib/actions/startGame";
 import type { PublicSession } from "@/lib/supabase/types";
 
 export default function LobbyView({
@@ -27,6 +27,7 @@ export default function LobbyView({
   const { players, submittedCount, status } = usePlayers(session.code);
   const [copied, setCopied] = useState(false);
   const [confirmExit, setConfirmExit] = useState(false);
+  const [starting, startStarting] = useTransition();
 
   // Routing transitions when the host moves the game forward in another tab,
   // or returns from the live screen back here.
@@ -54,14 +55,24 @@ export default function LobbyView({
   };
 
   const start = () => {
-    // Phase 3 wires the action + live screen; this is a placeholder so the
-    // button isn't a dead end during Phase 2 testing.
-    toast.info("Live screen comes online next — hold tight.");
+    const hostToken = localToken.get("host", session.code);
+    if (!hostToken) {
+      toast.error("Host token missing — restart the lobby.");
+      return;
+    }
+    startStarting(async () => {
+      const r = await startGame({ code: session.code, hostToken });
+      if (!r.ok) {
+        toast.error(r.error);
+        return;
+      }
+      router.push(`/host/${session.code}/live`);
+    });
   };
 
   return (
     <Page width="wide">
-      <BackBar onBack={() => setConfirmExit(true)} right={<Logo small />} />
+      <BackBar onBack={() => setConfirmExit(true)} />
 
       <div className="text-center mb-12">
         <div className="text-[11px] text-muted tracking-[0.3em] uppercase mb-3">
@@ -127,12 +138,14 @@ export default function LobbyView({
           variant="primary"
           size="lg"
           full
-          disabled={!canStart}
+          disabled={!canStart || starting}
           onClick={canStart ? start : undefined}
         >
-          {canStart
-            ? `Start game · ${totalCards} cards`
-            : "Waiting for at least 2 submissions"}
+          {starting
+            ? "Building deck…"
+            : canStart
+              ? `Start game · ${totalCards} cards`
+              : "Waiting for at least 2 submissions"}
         </Button>
       </div>
 

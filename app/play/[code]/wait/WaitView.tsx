@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 
 import { Page } from "@/components/brand/Page";
 import { BackBar } from "@/components/brand/BackBar";
-import { Logo } from "@/components/brand/Logo";
 
 import { supabase } from "@/lib/supabase/client";
 import { localToken } from "@/lib/hooks/useLocalToken";
@@ -55,7 +54,7 @@ export default function WaitView({
 
   return (
     <Page>
-      <BackBar onBack={exit} right={<Logo small />} />
+      <BackBar onBack={exit} />
       <div className="text-center pt-14">
         <div
           className="text-[64px] mb-4 leading-none"

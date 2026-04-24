@@ -55,6 +55,19 @@ export const SubmitAnswersInput = z.object({
   answers: z.tuple([Answer, Answer, Answer]),
 });
 
+export const HostActionInput = z.object({
+  code: SessionCode,
+  hostToken: Token,
+});
+
+export const SubmitGuessInput = z.object({
+  code: SessionCode,
+  playerId: z.string().uuid(),
+  playerToken: Token,
+  cardId: z.string().uuid(),
+  guessedPlayerId: z.string().uuid(),
+});
+
 export type CreateSessionInputType = z.infer<typeof CreateSessionInput>;
 export type JoinSessionInputType = z.infer<typeof JoinSessionInput>;
 export type SubmitAnswersInputType = z.infer<typeof SubmitAnswersInput>;
