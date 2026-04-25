@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { submitGuess } from "@/lib/actions/submitGuess";
@@ -13,28 +13,22 @@ export function GuessButtons({
   playerId,
   playerToken,
   candidates,
-  serverGuess,
+  selectedId,
+  onSelectedChange,
 }: {
   code: string;
   cardId: string;
   playerId: string;
   playerToken: string;
   candidates: Player[];
-  serverGuess: string | null;
+  selectedId: string | null;
+  onSelectedChange: (id: string | null, source: "optimistic" | "rollback") => void;
 }) {
-  const [optimistic, setOptimistic] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-
-  // Reset optimistic when the underlying card changes.
-  useEffect(() => {
-    setOptimistic(null);
-  }, [cardId]);
-
-  const myGuess = optimistic ?? serverGuess;
 
   const vote = (guessedId: string) => {
     if (pending) return;
-    setOptimistic(guessedId);
+    onSelectedChange(guessedId, "optimistic");
     startTransition(async () => {
       const r = await submitGuess({
         code,
@@ -44,7 +38,7 @@ export function GuessButtons({
         guessedPlayerId: guessedId,
       });
       if (!r.ok) {
-        setOptimistic(null);
+        onSelectedChange(null, "rollback");
         toast.error(r.error);
       }
     });
@@ -53,7 +47,7 @@ export function GuessButtons({
   return (
     <div className="flex flex-col gap-2 mb-20">
       {candidates.map((p) => {
-        const selected = myGuess === p.id;
+        const selected = selectedId === p.id;
         return (
           <button
             key={p.id}

@@ -35,6 +35,26 @@ export function useGuesses(cardId: string | null): Hook {
 
     let cancelled = false;
     let channel: RealtimeChannel | null = null;
+    let pollTimer: ReturnType<typeof setInterval> | null = null;
+
+    async function fetchGuesses() {
+      const { data } = await supabase
+        .from("guesses")
+        .select("card_id, guesser_id, guessed_player_id")
+        .eq("card_id", cardId);
+      if (cancelled || !data) return;
+      // Cheap diff so we don't churn renders when the server returns identical
+      // state (the common case while polling between actual guess events).
+      setGuesses((prev) => {
+        const next = data as Guess[];
+        if (prev.length !== next.length) return next;
+        const same = prev.every((g) => {
+          const match = next.find((n) => n.guesser_id === g.guesser_id);
+          return match && match.guessed_player_id === g.guessed_player_id;
+        });
+        return same ? prev : next;
+      });
+    }
 
     async function run() {
       setLoading(true);
@@ -84,6 +104,12 @@ export function useGuesses(cardId: string | null): Hook {
           },
         )
         .subscribe();
+
+      // Polling fallback. Realtime is the fast path (sub-second), but if any
+      // event is dropped — bad WiFi, momentary disconnect, publication hiccup
+      // — the host's "X / Y guessed" counter and per-player state would stall.
+      // 2s poll bounds the worst-case staleness without hammering the DB.
+      pollTimer = setInterval(fetchGuesses, 2000);
     }
 
     run();
@@ -91,6 +117,7 @@ export function useGuesses(cardId: string | null): Hook {
     return () => {
       cancelled = true;
       if (channel) supabase.removeChannel(channel);
+      if (pollTimer) clearInterval(pollTimer);
     };
   }, [cardId]);
 

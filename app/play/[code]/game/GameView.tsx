@@ -74,7 +74,26 @@ export default function GameView({
   );
 
   const { byGuesser } = useGuesses(card?.id ?? null);
-  const myGuess = me ? byGuesser.get(me.id) ?? null : null;
+
+  // Two layers of guess truth:
+  // - serverGuess = what useGuesses says (realtime + 2s polling fallback)
+  // - pendingGuess = the player's most recent tap, until the server confirms.
+  // We render pendingGuess when set so the "Locked in" copy flips instantly,
+  // independent of realtime delivery latency. Reset on every card change.
+  const [pendingGuess, setPendingGuess] = useState<string | null>(null);
+  useEffect(() => {
+    setPendingGuess(null);
+  }, [card?.id]);
+
+  const serverGuess = me ? byGuesser.get(me.id) ?? null : null;
+  // If the server now reflects a guess, drop the pending state — they agree.
+  useEffect(() => {
+    if (pendingGuess && serverGuess === pendingGuess) {
+      setPendingGuess(null);
+    }
+  }, [pendingGuess, serverGuess]);
+
+  const myGuess = pendingGuess ?? serverGuess;
 
   if (!me || !card) {
     return (
@@ -192,7 +211,8 @@ export default function GameView({
         playerId={me.id}
         playerToken={me.token}
         candidates={candidates}
-        serverGuess={myGuess}
+        selectedId={myGuess}
+        onSelectedChange={(id) => setPendingGuess(id)}
       />
     </Page>
   );
