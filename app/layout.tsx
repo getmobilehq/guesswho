@@ -3,7 +3,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://guesswho-delta.vercel.app";
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://www.guesswho.online";
 
 const TITLE = "Guess Who · A Storytelling Party Game";
 const DESCRIPTION =
