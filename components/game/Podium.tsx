@@ -1,22 +1,29 @@
 import type { Score } from "@/lib/game/scoring";
+import { rankLabel } from "@/lib/game/scoring";
 import { cn } from "@/lib/cn";
 
 export function Podium({
-  rank,
   entry,
   height,
   medal,
   gold = false,
 }: {
-  rank: 1 | 2 | 3;
   entry: Score;
   height: number;
   medal: string;
   gold?: boolean;
 }) {
   return (
-    <div className="text-center min-w-[130px]" aria-label={`Rank ${rank}`}>
+    <div
+      className="text-center min-w-[130px]"
+      aria-label={`Rank ${entry.rank}${entry.tied ? " tied" : ""}`}
+    >
       <div className="text-[36px] mb-2 leading-none">{medal}</div>
+      {entry.tied && (
+        <div className="text-[10px] tracking-[0.25em] text-gold uppercase font-bold mb-1">
+          {rankLabel(entry.rank, true)}
+        </div>
+      )}
       <div className="font-[var(--font-head)] text-lg text-ivory mb-3 font-semibold">
         {entry.player.name}
       </div>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Podium } from "@/components/game/Podium";
 
 import type { Score } from "@/lib/game/scoring";
+import { rankLabel } from "@/lib/game/scoring";
 import { localToken } from "@/lib/hooks/useLocalToken";
 import { endSession } from "@/lib/actions/endSession";
 
@@ -59,13 +60,13 @@ export default function FinalView({
       {top3.length > 0 && (
         <div className="flex justify-center gap-4 items-end mb-12 flex-wrap">
           {top3[1] && (
-            <Podium rank={2} entry={top3[1]} height={140} medal="🥈" />
+            <Podium entry={top3[1]} height={140} medal="🥈" />
           )}
           {top3[0] && (
-            <Podium rank={1} entry={top3[0]} height={180} medal="🥇" gold />
+            <Podium entry={top3[0]} height={180} medal="🥇" gold />
           )}
           {top3[2] && (
-            <Podium rank={3} entry={top3[2]} height={110} medal="🥉" />
+            <Podium entry={top3[2]} height={110} medal="🥉" />
           )}
         </div>
       )}
@@ -75,13 +76,18 @@ export default function FinalView({
           <div className="text-[11px] text-muted tracking-[0.2em] mb-3 text-center">
             EVERYONE ELSE
           </div>
-          {rest.map((entry, i) => (
+          {rest.map((entry) => (
             <div
               key={entry.player.id}
               className="flex items-center gap-4 px-5 py-3.5 bg-surface border border-border rounded-[var(--radius)] mb-2"
             >
-              <div className="font-[var(--font-head)] text-[20px] text-muted min-w-[32px]">
-                {i + 4}
+              <div
+                className={
+                  "font-[var(--font-head)] text-[20px] min-w-[64px] " +
+                  (entry.tied ? "text-gold" : "text-muted")
+                }
+              >
+                {rankLabel(entry.rank, entry.tied)}
               </div>
               <div className="flex-1 text-base text-ivory">
                 {entry.player.name}

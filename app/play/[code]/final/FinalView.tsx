@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
 
 import type { Score } from "@/lib/game/scoring";
+import { rankLabel } from "@/lib/game/scoring";
 import { localToken } from "@/lib/hooks/useLocalToken";
 
 export default function FinalView({
@@ -25,10 +26,9 @@ export default function FinalView({
     setMyId(localToken.get("player-id", code));
   }, [code]);
 
-  const myRank = myId
-    ? scores.findIndex((s) => s.player.id === myId) + 1
-    : 0;
-  const myScore = myId ? scores.find((s) => s.player.id === myId)?.correct ?? 0 : 0;
+  const meScore = myId ? scores.find((s) => s.player.id === myId) : undefined;
+  const myRankLabel = meScore ? rankLabel(meScore.rank, meScore.tied) : "";
+  const myScore = meScore?.correct ?? 0;
 
   const exit = () => {
     localToken.clear("player", code);
@@ -42,13 +42,18 @@ export default function FinalView({
 
       <div className="text-center pt-6 mb-10">
         <div className="text-[11px] tracking-[0.3em] text-gold uppercase">
-          {myRank > 0 ? "Your final position" : "Final results"}
+          {meScore ? "Your final position" : "Final results"}
         </div>
-        {myRank > 0 ? (
+        {meScore ? (
           <>
             <div className="font-[var(--font-head)] text-[96px] font-bold text-gold leading-none my-2">
-              #{myRank}
+              {myRankLabel}
             </div>
+            {meScore.tied && (
+              <div className="text-[12px] tracking-[0.2em] text-gold uppercase font-semibold mb-2">
+                Tied
+              </div>
+            )}
             <div className="text-muted text-[15px]">
               {myScore} correct {myScore === 1 ? "guess" : "guesses"}
             </div>
@@ -61,7 +66,7 @@ export default function FinalView({
       </div>
 
       <Section label="Full leaderboard">
-        {scores.map((s, i) => {
+        {scores.map((s) => {
           const isMe = s.player.id === myId;
           return (
             <div
@@ -75,11 +80,11 @@ export default function FinalView({
             >
               <div
                 className={
-                  "font-[var(--font-head)] text-[18px] font-bold min-w-[28px] " +
-                  (i < 3 ? "text-gold" : "text-muted")
+                  "font-[var(--font-head)] text-[18px] font-bold min-w-[56px] " +
+                  (s.rank <= 3 || s.tied ? "text-gold" : "text-muted")
                 }
               >
-                {i + 1}
+                {rankLabel(s.rank, s.tied)}
               </div>
               <div className="flex-1 text-[15px] text-ivory">
                 {s.player.name}
