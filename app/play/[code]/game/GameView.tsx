@@ -55,12 +55,22 @@ export default function GameView({
     return m;
   }, [players]);
   const owner = card ? playersById.get(card.player_id) ?? null : null;
-  // Candidates are everyone except the guesser themselves — the owner is the
-  // correct answer and MUST be in the list. The "this is yours" branch above
-  // already prevents the owner from seeing this UI in the first place.
+  // Submitters are players who actually contributed at least one answer (and
+  // therefore appear in the deck). Non-submitters joined the lobby but aren't
+  // possible card owners — they shouldn't show up as guess candidates.
+  const submitterIds = useMemo(
+    () => new Set(cards.map((c) => c.player_id)),
+    [cards],
+  );
+  // Candidates are submitters except the guesser themselves. The owner of any
+  // card is necessarily a submitter and is in this set, so the correct answer
+  // is always reachable.
   const candidates = useMemo(
-    () => (card && me ? players.filter((p) => p.id !== me.id) : []),
-    [card, me, players],
+    () =>
+      card && me
+        ? players.filter((p) => p.id !== me.id && submitterIds.has(p.id))
+        : [],
+    [card, me, players, submitterIds],
   );
 
   const { byGuesser } = useGuesses(card?.id ?? null);

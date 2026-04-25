@@ -24,7 +24,7 @@ export default function LobbyView({
   appUrl: string;
 }) {
   const router = useRouter();
-  const { players, submittedCount, status } = usePlayers(session.code);
+  const { players, submittedCount, totalAnswers, status } = usePlayers(session.code);
   const [copied, setCopied] = useState(false);
   const [confirmExit, setConfirmExit] = useState(false);
   const [starting, startStarting] = useTransition();
@@ -37,7 +37,7 @@ export default function LobbyView({
   }, [status, session.code, router]);
 
   const canStart = submittedCount >= 3;
-  const totalCards = submittedCount * 3;
+  const totalCards = totalAnswers;
   const stillNeeded = Math.max(0, 3 - submittedCount);
 
   const copyCode = async () => {
@@ -96,7 +96,7 @@ export default function LobbyView({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
         <StatCard label="Players joined" value={players.length} />
         <StatCard
-          label="Answers submitted"
+          label="Players ready"
           value={`${submittedCount}/${players.length}`}
           highlight={canStart && submittedCount === players.length}
         />

@@ -27,6 +27,13 @@ export const Answer = z
   .min(1, "Answer cannot be empty")
   .max(500, "Answer is too long (500 characters max)");
 
+// Each slot is optional — a player may answer 1, 2, or 3 questions. Empty
+// strings get filtered out before insert.
+export const OptionalAnswer = z
+  .string()
+  .trim()
+  .max(500, "Answer is too long (500 characters max)");
+
 export const Question = z
   .string()
   .trim()
@@ -52,7 +59,11 @@ export const SubmitAnswersInput = z.object({
   code: SessionCode,
   playerId: z.string().uuid(),
   playerToken: Token,
-  answers: z.tuple([Answer, Answer, Answer]),
+  answers: z
+    .tuple([OptionalAnswer, OptionalAnswer, OptionalAnswer])
+    .refine((arr) => arr.some((a) => a.length > 0), {
+      message: "Answer at least one question.",
+    }),
 });
 
 export const HostActionInput = z.object({

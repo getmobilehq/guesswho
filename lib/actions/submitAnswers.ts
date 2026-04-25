@@ -59,11 +59,17 @@ export async function submitAnswers(raw: unknown): Promise<Result> {
     return { ok: false, error: "You've already submitted your answers." };
   }
 
-  const rows = answers.map((text, q_index) => ({
-    player_id: playerId,
-    q_index,
-    text,
-  }));
+  const rows = answers
+    .map((text, q_index) => ({
+      player_id: playerId,
+      q_index,
+      text,
+    }))
+    .filter((r) => r.text.length > 0);
+
+  if (rows.length === 0) {
+    return { ok: false, error: "Answer at least one question." };
+  }
 
   const { error: insertError } = await supabaseAdmin
     .from("answers")

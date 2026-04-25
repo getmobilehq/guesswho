@@ -90,10 +90,13 @@ export default function SubmitView({ code, status, questions }: Props) {
     });
   };
 
+  const filledCount = answers.filter((a) => a.trim().length > 0).length;
+  const canSubmit = filledCount >= 1;
+
   const submit = () => {
     setError(null);
-    if (answers.some((a) => !a.trim())) {
-      setError("Please answer all 3 questions.");
+    if (!canSubmit) {
+      setError("Answer at least one question to lock in.");
       return;
     }
     const playerId = localToken.get("player-id", code);
@@ -128,16 +131,17 @@ export default function SubmitView({ code, status, questions }: Props) {
           Session {code}
         </div>
         <h2 className="font-[var(--font-head)] font-bold text-[36px] leading-tight tracking-[-0.02em] mt-3 mb-3 text-ivory">
-          Your three answers
+          Your answers
         </h2>
         <p className="text-muted text-sm leading-relaxed">
-          Be honest. Be specific. The more vivid, the better the storytelling
-          moment when it gets revealed.
+          Answer at least one. Skip the others if they don&apos;t fit. The more
+          vivid the answer, the better the storytelling moment when it gets
+          revealed.
         </p>
       </div>
 
       {questions.map((q, i) => (
-        <Section key={i} label={`Question ${i + 1}`}>
+        <Section key={i} label={`Question ${i + 1} · optional`}>
           <div className="font-[var(--font-head)] italic text-[17px] text-ivory mb-3 leading-snug">
             &ldquo;{q}&rdquo;
           </div>
@@ -146,7 +150,7 @@ export default function SubmitView({ code, status, questions }: Props) {
             value={answers[i]}
             onChange={(e) => update(i as 0 | 1 | 2, e.target.value)}
             maxLength={500}
-            placeholder="Your answer…"
+            placeholder="Your answer, or leave blank to skip…"
             aria-label={`Answer for question ${i + 1}`}
           />
           <Hint>{500 - answers[i].length} characters left</Hint>
@@ -155,8 +159,18 @@ export default function SubmitView({ code, status, questions }: Props) {
 
       {error && <ErrorMsg>{error}</ErrorMsg>}
 
-      <Button variant="primary" full size="lg" onClick={submit} disabled={pending}>
-        {pending ? "Submitting…" : "Lock in my answers"}
+      <Button
+        variant="primary"
+        full
+        size="lg"
+        onClick={submit}
+        disabled={pending || !canSubmit}
+      >
+        {pending
+          ? "Submitting…"
+          : canSubmit
+            ? `Lock in my ${filledCount === 1 ? "answer" : "answers"}`
+            : "Answer at least one to lock in"}
       </Button>
       <Hint className="text-center mt-3">
         Once submitted, your answers can&apos;t be changed.

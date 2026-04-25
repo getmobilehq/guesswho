@@ -72,6 +72,34 @@ export async function submitGuess(raw: unknown): Promise<Result> {
     return { ok: false, error: "You can't guess yourself." };
   }
 
+  // Only players who contributed at least one answer can guess. This keeps
+  // the host's "X / Y guessed" count meaningful and prevents non-submitters
+  // from steering the leaderboard.
+  const { count: guesserAnswers, error: answersError } = await supabaseAdmin
+    .from("answers")
+    .select("q_index", { count: "exact", head: true })
+    .eq("player_id", playerId);
+  if (answersError) {
+    console.error("submitGuess answers count failed", answersError);
+    return { ok: false, error: "Couldn't verify your guess. Try again." };
+  }
+  if (!guesserAnswers || guesserAnswers === 0) {
+    return {
+      ok: false,
+      error: "You're watching this game — submit answers next time to play.",
+    };
+  }
+
+  // The guessed player must also be a submitter (otherwise no card of theirs
+  // can ever be correct). Defends against forged ids from a stale/old client.
+  const { count: targetAnswers } = await supabaseAdmin
+    .from("answers")
+    .select("q_index", { count: "exact", head: true })
+    .eq("player_id", guessedPlayerId);
+  if (!targetAnswers || targetAnswers === 0) {
+    return { ok: false, error: "That player isn't in the deck." };
+  }
+
   // Verify the guessed player is in the same session (defends against id
   // smuggling from another room).
   const { data: target, error: targetError } = await supabaseAdmin

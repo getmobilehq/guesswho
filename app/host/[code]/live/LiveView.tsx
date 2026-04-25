@@ -54,8 +54,17 @@ export default function LiveView({
 
   const owner = card ? playersById.get(card.player_id) ?? null : null;
   const question = card ? session.questions[card.q_index] : "";
+  // Eligible guessers are submitters (= anyone in the deck) minus the owner
+  // of the current card. Non-submitters never reach this list, so the host
+  // count "X / Y guessed" doesn't stall waiting on people who aren't playing.
+  const submitterIds = useMemo(
+    () => new Set(cards.map((c) => c.player_id)),
+    [cards],
+  );
   const eligibleGuessers = card
-    ? players.filter((p) => p.id !== card.player_id)
+    ? players.filter(
+        (p) => p.id !== card.player_id && submitterIds.has(p.id),
+      )
     : [];
 
   const { byGuesser } = useGuesses(card?.id ?? null);

@@ -14,6 +14,7 @@ export type RosterPlayer = PublicPlayer & {
 type Hook = {
   players: RosterPlayer[];
   submittedCount: number;
+  totalAnswers: number;
   status: SessionStatus | null;
   loading: boolean;
   error: string | null;
@@ -153,12 +154,15 @@ export function usePlayers(code: string): Hook {
     };
   }, [code]);
 
+  // A player is "submitted" once they've contributed at least one answer.
+  // Each contributed answer becomes one card in the deck.
   const enriched: RosterPlayer[] = players.map((p) => {
     const submittedCount = counts[p.id] ?? 0;
-    return { ...p, submittedCount, submitted: submittedCount >= 3 };
+    return { ...p, submittedCount, submitted: submittedCount >= 1 };
   });
 
   const submittedCount = enriched.filter((p) => p.submitted).length;
+  const totalAnswers = enriched.reduce((sum, p) => sum + p.submittedCount, 0);
 
-  return { players: enriched, submittedCount, status, loading, error };
+  return { players: enriched, submittedCount, totalAnswers, status, loading, error };
 }
