@@ -36,8 +36,9 @@ export default function LobbyView({
     else if (status === "final") router.replace(`/host/${session.code}/final`);
   }, [status, session.code, router]);
 
-  const canStart = submittedCount >= 2;
+  const canStart = submittedCount >= 3;
   const totalCards = submittedCount * 3;
+  const stillNeeded = Math.max(0, 3 - submittedCount);
 
   const copyCode = async () => {
     try {
@@ -145,7 +146,9 @@ export default function LobbyView({
             ? "Building deck…"
             : canStart
               ? `Start game · ${totalCards} cards`
-              : "Waiting for at least 2 submissions"}
+              : stillNeeded === 1
+                ? "Waiting for 1 more submission"
+                : `Waiting for ${stillNeeded} more submissions`}
         </Button>
       </div>
 

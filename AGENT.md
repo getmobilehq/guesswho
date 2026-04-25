@@ -168,7 +168,7 @@ Read each as a sequence of state transitions. The reference prototype implements
 3. Client stores `hostToken`, redirects to `/host/[code]/lobby`
 4. Lobby subscribes to `players` and `answers` rows for this code
 5. Lobby renders QR code + big readable code, live roster, submission counts
-6. **Start button enabled when ≥2 players have submitted all 3 answers**
+6. **Start button enabled when ≥3 players have submitted all 3 answers** (raised from 2 — at 2 players the guess set is forced to a single candidate so the round is degenerate)
 
 ### 6.2 Player join → submit → wait
 1. Player visits `/play/[code]` (via QR scan or manual entry)

@@ -61,10 +61,13 @@ export async function startGame(raw: unknown): Promise<Result> {
     })),
   );
 
-  if (deck.length < 2) {
+  // Require ≥3 distinct players fully submitted. With fewer the guessing UI
+  // is degenerate (only one candidate, every guess automatic).
+  const distinctSubmitters = new Set(deck.map((c) => c.player_id));
+  if (distinctSubmitters.size < 3) {
     return {
       ok: false,
-      error: "Not enough answers in the room yet. Wait for at least two players to submit.",
+      error: "Not enough players yet — wait for at least 3 to submit their answers.",
     };
   }
 
