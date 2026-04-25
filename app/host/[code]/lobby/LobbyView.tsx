@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 
 import { Page } from "@/components/brand/Page";
@@ -91,6 +92,12 @@ export default function LobbyView({
         <div className="text-[13px] text-muted mt-3 h-[18px]">
           {copied ? "✓ Copied to clipboard" : "Tap to copy · Players join from /play"}
         </div>
+        <Link
+          href={`/host/${session.code}/rules`}
+          className="inline-flex items-center gap-2 mt-6 px-4 py-2 rounded-[var(--radius)] border border-border bg-surface text-ivory text-[13px] hover:border-gold hover:text-gold transition-colors"
+        >
+          Show rules to the room →
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
