@@ -1,7 +1,7 @@
 export const DEFAULT_QUESTIONS: [string, string, string] = [
-  "What's the most embarrassing thing that happened to you growing up?",
-  "Share a moment from this past year where you felt deeply grateful.",
-  "Tell us something most people in this room don't know about you.",
+  "A funny or embarrassing moment",
+  "A surprising or known fact about you",
+  "A favourite memory or short story",
 ];
 
 // Avoids visually confusable letters (I, O, 1) so codes read clean from a TV.
