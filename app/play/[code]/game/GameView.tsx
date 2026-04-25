@@ -55,9 +55,12 @@ export default function GameView({
     return m;
   }, [players]);
   const owner = card ? playersById.get(card.player_id) ?? null : null;
+  // Candidates are everyone except the guesser themselves — the owner is the
+  // correct answer and MUST be in the list. The "this is yours" branch above
+  // already prevents the owner from seeing this UI in the first place.
   const candidates = useMemo(
-    () => (card ? players.filter((p) => p.id !== card.player_id) : []),
-    [card, players],
+    () => (card && me ? players.filter((p) => p.id !== me.id) : []),
+    [card, me, players],
   );
 
   const { byGuesser } = useGuesses(card?.id ?? null);

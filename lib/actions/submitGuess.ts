@@ -68,6 +68,9 @@ export async function submitGuess(raw: unknown): Promise<Result> {
   if (card.player_id === playerId) {
     return { ok: false, error: "You can't guess your own card." };
   }
+  if (guessedPlayerId === playerId) {
+    return { ok: false, error: "You can't guess yourself." };
+  }
 
   // Verify the guessed player is in the same session (defends against id
   // smuggling from another room).
