@@ -1,6 +1,6 @@
 export const DEFAULT_QUESTIONS: [string, string, string] = [
   "A funny or embarrassing moment",
-  "A surprising or known fact about you",
+  "A surprising or little-known fact about you",
   "A favourite memory or short story",
 ];
 
