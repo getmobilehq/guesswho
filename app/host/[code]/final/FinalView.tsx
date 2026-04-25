@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -12,6 +12,7 @@ import type { Score } from "@/lib/game/scoring";
 import { rankLabel } from "@/lib/game/scoring";
 import { localToken } from "@/lib/hooks/useLocalToken";
 import { endSession } from "@/lib/actions/endSession";
+import { celebrate } from "@/lib/celebrate";
 
 export default function FinalView({
   code,
@@ -22,6 +23,10 @@ export default function FinalView({
 }) {
   const router = useRouter();
   const [ending, startEnding] = useTransition();
+
+  useEffect(() => {
+    celebrate();
+  }, []);
 
   const top3 = scores.slice(0, 3);
   const rest = scores.slice(3);

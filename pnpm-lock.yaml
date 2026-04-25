@@ -11,6 +11,9 @@ dependencies:
   '@supabase/supabase-js':
     specifier: ^2.104.1
     version: 2.104.1
+  canvas-confetti:
+    specifier: ^1.9.4
+    version: 1.9.4
   clsx:
     specifier: ^2.1.1
     version: 2.1.1
@@ -40,6 +43,9 @@ devDependencies:
   '@tailwindcss/postcss':
     specifier: ^4
     version: 4.2.4
+  '@types/canvas-confetti':
+    specifier: ^1.9.0
+    version: 1.9.0
   '@types/node':
     specifier: ^20
     version: 20.19.39
@@ -952,6 +958,10 @@ packages:
     dev: true
     optional: true
 
+  /@types/canvas-confetti@1.9.0:
+    resolution: {integrity: sha512-aBGj/dULrimR1XDZLtG9JwxX1b4HPRF6CX9Yfwh3NvstZEm1ZL7RBnel4keCPSqs1ANRu1u2Aoz9R+VmtjYuTg==}
+    dev: true
+
   /@types/estree@1.0.8:
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
     dev: true
@@ -1518,6 +1528,10 @@ packages:
 
   /caniuse-lite@1.0.30001790:
     resolution: {integrity: sha512-bOoxfJPyYo+ds6W0YfptaCWbFnJYjh2Y1Eow5lRv+vI2u8ganPZqNm1JwNh0t2ELQCqIWg4B3dWEusgAmsoyOw==}
+
+  /canvas-confetti@1.9.4:
+    resolution: {integrity: sha512-yxQbJkAVrFXWNbTUjPqjF7G+g6pDotOUHGbkZq2NELZUMDpiJ85rIEazVb8GTaAptNW2miJAXbs1BtioA251Pw==}
+    dev: false
 
   /chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}

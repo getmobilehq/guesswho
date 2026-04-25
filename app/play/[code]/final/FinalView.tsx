@@ -11,6 +11,7 @@ import { Section } from "@/components/ui/Section";
 import type { Score } from "@/lib/game/scoring";
 import { rankLabel } from "@/lib/game/scoring";
 import { localToken } from "@/lib/hooks/useLocalToken";
+import { celebrate } from "@/lib/celebrate";
 
 export default function FinalView({
   code,
@@ -25,6 +26,10 @@ export default function FinalView({
   useEffect(() => {
     setMyId(localToken.get("player-id", code));
   }, [code]);
+
+  useEffect(() => {
+    celebrate();
+  }, []);
 
   const meScore = myId ? scores.find((s) => s.player.id === myId) : undefined;
   const myRankLabel = meScore ? rankLabel(meScore.rank, meScore.tied) : "";
